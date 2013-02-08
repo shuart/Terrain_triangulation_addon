@@ -127,28 +127,15 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
     tessedgessign.append(node1)
     tessedgessign.append(node2)
 
-#    print('!!!!la face 1 est coposee de')
-#    print(source_mesh.vertices[node1].co)
-#    print(source_mesh.vertices[node2].co)
-#    print(source_mesh.vertices[node3].co)
-#    print('!!!!avec les index')
-#    print(node1)
-#    print(node2)
-#    print(node3)
-
     #do it for other faces
     while (len( tessedges)) !=0 :
 
-#         print('!!!!ls edges disponibles sont')
-#         print(tessedges)
          node1 =tessedges[0][0]
          node2 =tessedges[0][1]
          test=tessedgessign[0]
          del tessedges[0]
          del tessedgessign[0]
 #         print ('check edge')
-#         print (node1)
-#         print(node2)
 
          #check wich vert is on good side
 
@@ -179,7 +166,7 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
                  nodedistance.append([iter,dist])
 
              iter=iter+1
-#         print('!!!!les noeuds dispo pour cet edge  sont')
+#         print('les noeuds dispo pour cet edge  sont')
 #         for a in affnodes:
 #            print(a)
 #            print(source_mesh.vertices[a].co)
@@ -192,24 +179,9 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
              node3 =find_node3(node_part_list,node1,node2,affnodes,nodedistance)
              if node3 != False:
 
-#                 print('!!!!!!!!!!!!!!!!!!!!le noeud 3 est',equ_list[node3] )
-#                 print(node3)
-#                 print(source_mesh.vertices[node3].co)
-
                  #create face
                  #TODO change to make mode switch only once
 
-#                 source_mesh.vertices[equ_list[node1]].select=1
-#                 source_mesh.vertices[equ_list[node2]].select=1
-#                 source_mesh.vertices[equ_list[node3]].select=1
-#
-#
-#                 bpy.ops.object.editmode_toggle()
-#                 bpy.ops.mesh.edge_face_add()
-#
-#                 bpy.ops.mesh.select_all(action='TOGGLE')
-#
-#                 bpy.ops.object.editmode_toggle()
 
                  v1 = bm.verts[equ_list[node1]]
                  v2 = bm.verts[equ_list[node2]]
@@ -225,20 +197,6 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
                     print(report)
                     lastreport=report
 
-#                 source_mesh.vertices[equ_list[node1]].select=0
-#                 source_mesh.vertices[equ_list[node2]].select=0
-#                 source_mesh.vertices[equ_list[node3]].select=0
-
-
-
-    #             tessedges.append([node2,node3])
-    #             tessedges.append([node3,node1])
-    #             tessedgessign.append(node1)
-    #             tessedgessign.append(node2)
-#                 print ('check existing edges')
-#                 print (node2)
-#                 print (node3)
-#                 print (tessedgessign)
                  if [node3,node2] in tessedges:
                      delindex=tessedges.index([node3,node2])
                      del tessedges[delindex]
@@ -267,11 +225,7 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
     bm.to_mesh(me)
     bpy.context.area.tag_redraw()
 
-
-
-
-
-    #coords=[(-1.0, -1.0, -1.0), (1.0, -1.0, -1.0), (1.0, 1.0 ,-1.0), \
+#coords=[(-1.0, -1.0, -1.0), (1.0, -1.0, -1.0), (1.0, 1.0 ,-1.0), \
 #(-1.0, 1.0,-1.0), (0.0, 0.0, 1.0)]
 #
 ## Define the faces by index numbers. Each faces is defined by 4 consecutive integers.
@@ -297,17 +251,8 @@ def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
 
         if v != node_part_list[node1] and v != node_part_list[node2] and n_index in affnodes:
             node3=n_index
-#            print('!!!!!!!!!le noeud trois envisager est')
-#            print(node3)
             circle=get_circle(node1,node2,node3,node_part_list)
             #then check if other nodes are in
-#            print('le cercle correspondant est')
-#            print(circle[2])
-#            print(circle[0])
-#            print(circle[1])
-#            print('le candidat doit etre different de')
-#            print(node1)
-#            print(node2)
             nin=False
             vinumber= -1
             if sp == False or circle[2] < last_circle_size:
@@ -316,18 +261,7 @@ def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
                 while find_in == False and vinumber<(len(node_part_list)-1):
                     vinumber=vinumber+1
                     vi = node_part_list[vinumber]
-                    #print(node_part_list[0],source_mesh.vertices[0])
-                    #print(vi,source_mesh.vertices[vinumber])
-#                    print('et donc le candidat est')
-#                    print(vi.co)
-#                    print('contre')
-#                    print(source_mesh.vertices[node1].co)
-#                    print(source_mesh.vertices[node2].co)
-#                    print(source_mesh.vertices[node3].co)
                     if vi != node_part_list[node1] and vi != node_part_list[node2]and vi != node_part_list[node3]:
-#                        print('on verifie si le noeu est dans le cercle pour')
-#                        print(vi.co)
-#                        print('dist du centre de')
 
                         cand_loc=vi
                         cand_len=find_length(circle,cand_loc)
@@ -340,25 +274,6 @@ def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
             else:
                 nin=True
                 print('cercle rejete!')
-
-#                        print('dedans')
-#            if sp == True:# try to hook on last intern node
-#                while nin==True:
-#                    v=vi
-#                    if v != source_mesh.vertices[node1] and v != source_mesh.vertices[node2]:
-#                        node3=vinumber
-#            #            print('!!!!!!!!!le noeud trois envisager est')
-#                        circle=get_circle(node1,node2,node3,source_mesh)
-#                        #then check if other nodes are in
-#                        nin=False
-#                        vinumber=-1
-#                        for vi in source_mesh.vertices:
-#                            vinumber=vinumber+1
-#                            if vi != source_mesh.vertices[node1] and vi != source_mesh.vertices[node2]and vi != source_mesh.vertices[node3]:
-#                                cand_loc=vi.co.copy()
-#                                cand_len=find_length(circle,cand_loc)
-#                                if cand_len < circle[2]:
-#                                    nin=True
 
         iter=iter+1
 
