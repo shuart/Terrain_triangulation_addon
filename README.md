@@ -1,7 +1,7 @@
 Terrain_triangulation_addon
 ===========================
 
-Simple Dawall triangulator plugin for Blender.
+Simple Dewall triangulator plugin for Blender.
 
 -Add to addons folder
 
