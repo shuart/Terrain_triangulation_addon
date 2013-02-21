@@ -20,7 +20,7 @@ bl_info = {
     'name': 'Terrain Generator',
     'author': 'Stephane Huart',
     'version': (0, 7, 0),
-    "blender": (2, 6, 1),
+    "blender": (2, 6, 5),
     'location': 'View3D > Ctrl-C',
     'description': 'Generate terrain from point cloud',
     "warning": "some corner cases",
@@ -38,7 +38,7 @@ import bmesh
 
 def dewall_triangulation(source_mesh,node_part_list,equ_list):
 
-    face_done=0
+    face_done=0 #init variables
     lastreport=0
     tessedges=[]
     tessedgessign=[]
@@ -47,25 +47,19 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
     bm = bmesh.new()   # create an empty BMesh
     bm.from_mesh(me)   # fill it in from a Mesh
 
-    #create first triangle
-    node1=0
+    node1=0 #create first triangle
     node1loc=node_part_list[0]
-    #finde nearest vertex
-    lenght=1000000000000000
-    node2=1#initialise node 2
+    
+    lenght=1000000000000000 #finde nearest vertex
+    node2=1 #initialise node 2
     iter=0
     for v in node_part_list: #parcoure les noeuds originaux
-
         if v != node_part_list[node1]:
             cand_loc=v
             cand_len=find_length(node1loc,cand_loc)
             if lenght > cand_len:
                 node2=iter
                 lenght=cand_len
-#                print(iter)
-#                print(cand_loc)
-#                print(cand_len)
-
         iter=iter+1
 
     #get node 3
@@ -73,7 +67,6 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
     iter=0
     nin=True
     while nin == True:
-
         v = node_part_list[iter]
         if v != node_part_list[node1] and v != node_part_list[node2]:
             node3=iter
@@ -86,39 +79,15 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
                     cand_len=find_length(circle,cand_loc)
                     if cand_len < circle[2]:
                         nin=True
-
         iter=iter+1
 
-#    print('result')
-#    print( source_mesh.vertices[node1].co)
-#    print( source_mesh.vertices[node2].co)
-
     #create face
-    #TODO change to make mode switch only once
 
-#    source_mesh.vertices[equ_list[node1]].select=1
-#    source_mesh.vertices[equ_list[node2]].select=1
-#    source_mesh.vertices[equ_list[node3]].select=1
-#
-#
-#
-#    bpy.ops.object.editmode_toggle()
-#    bpy.ops.mesh.edge_face_add()
-#
-#    bpy.ops.mesh.select_all(action='TOGGLE')
-#
-#    bpy.ops.object.editmode_toggle()
-#    source_mesh.vertices[equ_list[node1]].select=0
-#    source_mesh.vertices[equ_list[node2]].select=0
-#    source_mesh.vertices[equ_list[node3]].select=0
-#
     v1 = bm.verts[equ_list[node1]]
     v2 = bm.verts[equ_list[node2]]
     v3 = bm.verts[equ_list[node3]]
 
     bm.faces.new([v1, v2, v3])
-
-
 
     tessedges.append([node1,node2])
     tessedges.append([node2,node3])
@@ -129,16 +98,13 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
 
     #do it for other faces
     while (len( tessedges)) !=0 :
-
          node1 =tessedges[0][0]
          node2 =tessedges[0][1]
          test=tessedgessign[0]
          del tessedges[0]
          del tessedgessign[0]
-#         print ('check edge')
-
+         
          #check wich vert is on good side
-
 
          affnodes=[]
          nodedistance=[]
@@ -172,24 +138,18 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
 #            print(source_mesh.vertices[a].co)
 
          if (len( affnodes)) !=0:
-
              nodedistance.sort(key=lambda vert: vert[1])#sort aff vert by distance
-
 
              node3 =find_node3(node_part_list,node1,node2,affnodes,nodedistance)
              if node3 != False:
 
                  #create face
                  #TODO change to make mode switch only once
-
-
                  v1 = bm.verts[equ_list[node1]]
                  v2 = bm.verts[equ_list[node2]]
                  v3 = bm.verts[equ_list[node3]]
 
                  bm.faces.new([v1, v2, v3])
-
-
 
                  face_done=face_done+1
                  report=face_done/(len(source_mesh.vertices)*2)*100
@@ -247,7 +207,6 @@ def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
             return False
         n_index=nodedistance[iter][0]
         v = node_part_list[n_index]
-
 
         if v != node_part_list[node1] and v != node_part_list[node2] and n_index in affnodes:
             node3=n_index
@@ -335,6 +294,7 @@ def get_circle(node1,node2,node3,node_part_list):
     circle=[cx,cy,radius2]
     return circle
 
+
 def get_circle2(node1,node2,node3,source_mesh):
     #get slope
     print('!!!!!! can bug here')
@@ -355,10 +315,8 @@ def get_circle2(node1,node2,node3,source_mesh):
     radius2=((cx-x1)*(cx-x1)+(cy-y1)*(cy-y1))
     circle=[cx,cy,radius2]
     return circle
-
-
-
-
+    
+    
 class OBJECT_PT_Tgen(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -381,7 +339,6 @@ class OBJECT_PT_Tgen(bpy.types.Panel):
         row.operator("dewall_tri.", text="Using Dewall triangulation")
 
 
-
 class OBJECT_OT_Tgen_dewall_tri(bpy.types.Operator):
     bl_label = "tgen_dewall_tri"
     bl_idname = "dewall_tri."
@@ -395,13 +352,10 @@ class OBJECT_OT_Tgen_dewall_tri(bpy.types.Operator):
         import bpy
         import time
 
-
         chunk=False
         t0 = time.time()
 
-
         scn = bpy.context.scene
-
 
         source_ob=bpy.context.active_object
         node_part_list=[]
@@ -419,10 +373,7 @@ class OBJECT_OT_Tgen_dewall_tri(bpy.types.Operator):
         dewall_triangulation(source_mesh,node_part_list,equ_list)
 
         print ("Dewall triangulation completed in", time.time() - t0, "seconds wall time")
-
-
         return{"FINISHED"}		
-
 
 def register():
     bpy.utils.register_module(__name__)
