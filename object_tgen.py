@@ -19,7 +19,7 @@
 bl_info = {
     'name': 'Terrain Generator',
     'author': 'Stephane Huart',
-    'version': (0, 7, 0),
+    'version': (0, 8, 0),
     "blender": (2, 6, 5),
     'location': 'View3D > Ctrl-C',
     'description': 'Generate terrain from point cloud',
@@ -193,8 +193,8 @@ def dewall_triangulation(source_mesh,node_part_list,equ_list):
 #faces=[ (2,1,0,3), (0,1,4,0), (1,2,4,1), (2,3,4,2), (3,0,4,3)]
 
 def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
-    #check wich is the third node
-    #get node 3
+    """ Find best third vertices for the new face"""
+
     #1-construc circle
     #print(node_part_list[0],source_mesh.vertices[0])
     iter=0
@@ -202,7 +202,6 @@ def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
     sp=False
     last_circle_size=0
     while nin == True:
-
         if (len(affnodes))==iter:
             return False
         n_index=nodedistance[iter][0]
@@ -215,7 +214,7 @@ def find_node3(node_part_list,node1,node2,affnodes,nodedistance):
             nin=False
             vinumber= -1
             if sp == False or circle[2] < last_circle_size:
-#                print('test de sp ou cervle reussi')
+#                print('test de sp ou cercle reussi')
                 find_in = False
                 while find_in == False and vinumber<(len(node_part_list)-1):
                     vinumber=vinumber+1
@@ -247,6 +246,8 @@ def find_length(vloc,cand_loc):
     return length
 
 def get_circle(node1,node2,node3,node_part_list):
+    """Get circles from three points"""
+
     #get slope
     ay=node_part_list[node1][1]
     by=node_part_list[node2][1]
@@ -296,6 +297,8 @@ def get_circle(node1,node2,node3,node_part_list):
 
 
 def get_circle2(node1,node2,node3,source_mesh):
+    """Alternative way to get circles from three points"""
+
     #get slope
     print('!!!!!! can bug here')
     print(source_mesh.vertices[node1].co)
@@ -346,21 +349,26 @@ class OBJECT_OT_Tgen_dewall_tri(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object != None
+        if not context.active_object:
+            return False
+        else:
+            return (context.active_object.type == 'MESH')
 
     def invoke(self, context, event):
         import bpy
         import time
 
-        chunk=False
+        chunk=False #first part of a chunk aware algo.
         t0 = time.time()
 
         scn = bpy.context.scene
-
         source_ob=bpy.context.active_object
+        source_mesh=source_ob.data
+        
         node_part_list=[]
         equ_list=[]
-        source_mesh=source_ob.data
+        
+        #add candidates vertices to dewall algo. lists
         for i in range(len(source_mesh.vertices)):
             if chunk ==True:
                 if source_mesh.vertices[i].co[0] < (-4):
@@ -372,7 +380,7 @@ class OBJECT_OT_Tgen_dewall_tri(bpy.types.Operator):
 
         dewall_triangulation(source_mesh,node_part_list,equ_list)
 
-        print ("Dewall triangulation completed in", time.time() - t0, "seconds wall time")
+        print ("Triangulation completed in", time.time() - t0, "seconds wall time")
         return{"FINISHED"}		
 
 def register():
